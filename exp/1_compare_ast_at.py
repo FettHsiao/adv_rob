@@ -16,6 +16,9 @@ from ipt.data import get_dataset, get_dataloader
 from config import default_arguments
 from utils import dumpj, loadj
 
+from efficientnet_pytorch import EfficientNet
+# pip install efficientnet_pytorch
+
 def do_adversarial_similarity_training(args, model, train_loader, test_loader):
     # assume: model.iptnet vs model.classifier
     Record = defaultdict(list)
@@ -172,3 +175,17 @@ def main():
 
 if __name__ == '__main__':
     main()
+    args = default_arguments('cifar10')
+    train_set, test_set = get_dataset(args.dataset)
+    train_loader, test_loader = get_dataloader(train_set, test_set, args.batch_size)
+    print(train_set)
+    aptnet = APTNet(args)
+    classifier = SmallClassifier(args)
+    model1 = Dummy(aptnet, classifier)
+    aptnet_ast_record = do_adversarial_similarity_training(args, model1, train_loader, test_loader)
+    aptnet_at_record = do_adversarial_training(args, model, train_loader, test_loader)
+    aptnet_ast_record_path = Path('test_aptent_ast.json')
+    aptnet_at_record_path = Path('test_aptent_at.json')
+    cnn_at_record_path = Path('test_cnn_at.json')
+
+    # model2 = EfficientNet.from_pretrained('efficientnet-b0')
